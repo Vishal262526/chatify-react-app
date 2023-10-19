@@ -1,7 +1,9 @@
 import { useEffect } from "react";
-import { COLLECTION_ID, DATABASE_ID, database } from "../appwrite/config";
+import client, { COLLECTION_ID, DATABASE_ID, database } from "../appwrite/config";
 import { useState } from "react";
 import { ID, Query } from "appwrite";
+import { Trash } from "react-feather";
+
 
 const Room = () => {
   const [messages, setMessages] = useState([]);
@@ -10,6 +12,24 @@ const Room = () => {
 
   useEffect(() => {
     getMessage();
+
+
+    const unSubscribe = client.subscribe(`databases.${DATABASE_ID}.collections.${COLLECTION_ID}.documents`, (res ) => {
+      if(res.events[1] === "databases.*.collections.*.documents.*.delete"){
+        setMessages(message => message.filter(curMessage => curMessage.$id !== res.payload.$id));
+
+        console.log("Message Delete");
+      }
+      if(res.events[1] === "databases.*.collections.*.documents.*.create"){
+        setMessages(message => [res.payload, ...message]);
+
+      }
+    })
+
+
+    return () => {
+      unSubscribe();
+    }
   }, []);
 
   const handleSubmit = async (e) => {
@@ -19,15 +39,12 @@ const Room = () => {
     };
 
     try {
-      const res = await database.createDocument(
+        await database.createDocument(
         DATABASE_ID,
         COLLECTION_ID,
         ID.unique(),
         payload
       );
-
-      setMessages((message) => [res, ...message]);
-
       setMessageBody("");
     } catch (e) {
       console.log(e);
@@ -44,9 +61,16 @@ const Room = () => {
     setMessages(documents);
   };
 
-  // const deleteMessage = async (id) => {
-  //   const res = database.deleteDocument(DATABASE_ID, COLLECTION_ID, id);
-  // };
+  const handleDeleteMessage = async (id) => {
+    try{
+       await database.deleteDocument(DATABASE_ID, COLLECTION_ID, id);
+     
+    }catch(e){
+      console.log(e.message);
+    }
+    
+    
+  };
 
   return (
     <main className="container">
@@ -71,8 +95,9 @@ const Room = () => {
             <div key={message.$id} className="message--wrapper">
               <div className="message--header">
                 <small className="message-timestamp">
-                  {message.$createdAt}
+                  {new Date(message.$createdAt).toLocaleString()}
                 </small>
+                <Trash className="delete--btn" onClick={() => handleDeleteMessage(message.$id)} />
               </div>
               <div className="message--body">
                 <span>{message.body}</span>
