@@ -3,6 +3,8 @@ import client, { COLLECTION_ID, DATABASE_ID, database } from "../appwrite/config
 import { useState } from "react";
 import { ID, Query } from "appwrite";
 import { Trash } from "react-feather";
+import Header from "../components/Header";
+import { ToastContainer } from "react-toastify";
 
 
 const Room = () => {
@@ -12,8 +14,6 @@ const Room = () => {
 
   useEffect(() => {
     getMessage();
-
-
     const unSubscribe = client.subscribe(`databases.${DATABASE_ID}.collections.${COLLECTION_ID}.documents`, (res ) => {
       if(res.events[1] === "databases.*.collections.*.documents.*.delete"){
         setMessages(message => message.filter(curMessage => curMessage.$id !== res.payload.$id));
@@ -73,7 +73,9 @@ const Room = () => {
   };
 
   return (
+    <>
     <main className="container">
+      <Header />
       <div className="room--container">
         <form onSubmit={handleSubmit} id="message--form">
           <div>
@@ -107,6 +109,25 @@ const Room = () => {
         </div>
       </div>
     </main>
+
+
+    <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
+    </>
+
+    
   );
 };
 

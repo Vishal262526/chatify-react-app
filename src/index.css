@@ -72,6 +72,11 @@ font-size: 18px;
 text-shadow: none !important;
 }
 
+input[type="password"]:focus, input[type="email"]:focus , input[type="text"]:focus{
+  border-color: var(--themeColorMain);
+  border-width: 2px;
+}
+
 
 /* Button Styling */
 
@@ -186,4 +191,12 @@ width: 16px;
 
 .delete--btn:hover{
 color:red;
+}
+
+.loading--wrapper{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
