@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { account } from "../appwrite/config";
 const AuthContext = createContext();
 import { Comment } from "react-loader-spinner";
-import { ID } from "appwrite";
+import { ID} from "appwrite";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(false);
@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }) => {
     setError("");
 
     try {
-      const res = await account.createEmailSession(email, password);
+      await account.createEmailSession(email, password);
+      const res = await account.get();
       setUser(res);
     } catch (e) {
       setError(e.message);
@@ -60,7 +61,8 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError("");
       await account.create(ID.unique(), email, password, name);
-      const res = await account.createEmailSession(email, password);
+      await account.createEmailSession(email, password);
+      const res = await account.get();
       setUser(res);
     } catch (e) {
       setError(e.message);
